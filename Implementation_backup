@@ -1,0 +1,131 @@
+f = open("Dummy Dataset.txt","r")   #opening the dummy database
+db = {}
+
+#creating QI
+qi = {
+    0: "sex",
+    1: "race",
+    2: "hours"
+    }
+
+#Creating DA = QI
+da = qi
+
+#Class item
+classifier = {
+    4: "Credit"
+    }
+
+class Nodes(object):
+    def __inti__(self,name):
+        self.name = name
+
+male = Nodes("Male")
+female = Nodes("Female")
+any_sex = Nodes("Any sex")
+
+white = Nodes("White")
+black = Nodes("Black")
+asian = Nodes("Asian")
+amer = Nodes("American")
+colored = Nodes("Colored")
+any_race = Nodes("Any Race")
+
+n1 = Nodes("35")
+n2 = Nodes("37")
+n3 = Nodes("40")
+n4 = Nodes("50")
+n5 = Nodes("1 to 39")
+n6 = Nodes("40 to 99")
+n7 = Nodes("Any hours")
+
+#creating Domi
+dom = {
+    0: [[male,female],[any_sex]],
+    1: [[white,black,asian,amer],[white,colored],[any_race]],
+    2: [[35,37,40,50],[range(1,40),range(40,100)],["Any"]]
+    }
+print "Dom", dom
+print
+
+#Creating whether each node is k-anonymous(if yes = k, otherwise = n)
+#                              alpha-protective(if yes = a, otherwise = n)
+status = {
+    0: [["nn","nn"],["nn"]],
+    1: [["nn","nn","nn","nn"],["nn","nn"],["nn"]],
+    2: [["nn","nn","nn","nn"],["nn","nn"],["nn"]]
+    }
+
+#other parameters
+alpha = 1.2 #alpha value
+k = 3
+ms = 1
+t = 3   #t is tau
+
+#Creating DB
+for row in range(1,11):
+    temp = f.readline().split("\t")
+    temp.remove(temp[0])
+    if "\n" in temp:
+        temp.remove("\n")
+    db[row] = temp
+f.close()
+
+for row in db:
+    print row, db[row]
+print
+#-------------------------------------------------
+
+
+"""C1 = nodes in the domain generalization hierarchies of attributes in QI,
+starting off with single attribute subsets of QI"""
+#Nodes in C and directed edges are represented by dictionary key-value pair
+C = [
+        [
+            #{}
+        ]
+    ]
+
+#Creating edges to nodes in C in the form of a dictionary key-value pair
+for i in range(3):
+    C[0].append(dict())
+    for j in dom[i][0]:
+        C[0][i][j] = "NA"
+print "C: \n", C
+print
+
+Cpd = C     #step 2 in algo
+
+queue = []
+roots = []
+S = []
+
+for i in range(0,1):    #step 5
+    S.append(list())    #step 7
+    S[i] = C[i]
+
+    for j in C[i]:      #step 8
+        for item in j:
+            if j[item] == "NA":
+                roots.append(item)  #print item, j[item] = to print key-value pair
+
+    for item in roots:      #step 9
+        queue.append(item)
+    print "queue", queue,"\n"
+
+    while len(queue)>0:    #step 10
+        node = queue[0]     #step 11
+        del(queue[0])
+        print "node: ", node
+        print
+
+        for j in dom:
+            for ls in dom[j]:
+                for items in ls:
+                    if node == items:
+                        print "yes"     #status[j]
+                    else:
+                        print "no"
+        
+        if raw_input("Cont?")=='n':
+            break

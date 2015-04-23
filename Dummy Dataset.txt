@@ -1,0 +1,10 @@
+1	Male	White	40	High	Yes	
+2	Male	Asian	50	Medium	Yes	
+3	Male	Black	35	Medium	No	
+4	Female	Black	35	Medium	No	
+5	Male	White	37	Medium	Yes	
+6	Female	American	37	Medium	Yes	
+7	Female	White	35	Medium	No	
+8	Male	Black	35	High	Yes	
+9	Female	White	35	Low 	No	
+10	Male	White	50	High	Yes
