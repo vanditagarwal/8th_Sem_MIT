@@ -607,7 +607,6 @@ for i in range(n):      #step 5
             if anonymous == True:   #if DB is k-anonymous step 19
                 #print "Enter, ", node.name
                 node.private = True
-                #print node.name, "is private: ", node.private
                 for item in node.pointing_to:
                     item.private = True         #marking all direct generalization
                                                 #as k-anonymous
@@ -654,7 +653,6 @@ for i in range(n):      #step 5
                 queue = sorted(queue, key=attrgetter('height'))   #sorting by height
 
         elif node.private == True:      #step 21-36     step 38
-            #print node.name, "is private: ", node.private
             flag = 0
             N = []
             for item in Cpd:       #step 21(1)
