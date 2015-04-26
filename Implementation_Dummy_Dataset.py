@@ -1,3 +1,4 @@
+
 from operator import attrgetter     #for sorting
 import itertools                    #for forming all possible combinations of values from multiple lists
 import copy                         #for deepcopy
@@ -92,13 +93,13 @@ def alpha_protection(i, node):
                     count += 1
         j.append(count)
                 
-    print "\nIl: ",     #displaying Il with respective frequencies
+    '''print "\nIl: ",     #displaying Il with respective frequencies
     for j in t:
         for item in j:
             if type(item) == int:
                 print item,
             else:
-                print item.name,
+                print item.name,'''
 
     #computing I_l_1
     Il1 = []
@@ -331,14 +332,14 @@ def measure_disc(alpha,ms,f,PD_groups):
     if f == 'elift' or f == 'clift':    #step8
         for group in PD_groups:         #step9(1)
             if f == 'elift':
-                print "group: ", group
+                #print "group: ", group
                 ratio = (float(group[1])/float(group[2]))/(float(group[1]+group[3])/float(group[2]+group[4]))
             else:
                 ratio = 1234
 
             #print "ratio: ", ratio
             if group[1] >= ms and ratio > alpha:    #step9(2)
-                print 'case1, ratio: ', ratio
+                #print 'case1, ratio: ', ratio
                 return 'case1'          #step 10
 
         for group in PD_groups:     #step 11(1)
@@ -530,7 +531,7 @@ roots = []
 S = []
 freq_set = []
 freq_count = []
-#%%
+
 for i in range(n):      #step 5
     print "\ni: ", i
 
@@ -538,13 +539,13 @@ for i in range(n):      #step 5
 
     freq_set = []
     freq_count = []
+
+    nodes_private = []
     
     S.append(list())
     for item in C[i]:
         S[i].append(item)         #step 7
-    '''S.append([])
-    S[i] = copy.deepcopy(C[i])'''
-
+        
     roots = []
     for item in C[i]:
         if len(item.E)==0:      #ie. there is no edge Ei directed to them
@@ -563,12 +564,30 @@ for i in range(n):      #step 5
         del(queue[0])       #step 11
         print
         print "node: ", node.name
-        print "---%s seconds---" % (time.clock() - start_time)
+        #print "---%s seconds---" % (time.clock() - start_time)
         #print "Private: ", node.private
         queue = sorted(queue, key=attrgetter('height'))
         '''print "Queue: "
         for item in queue:
             print item.name,'''
+
+        flag = 0
+        for item in nodes_private:
+            if (set(item.attributes) == set(node.attributes)) and (node.height == item.height):
+                flag = 1
+                for j in range(len(item.values)):
+                    if item.values[j].height != node.values[j].height:
+                        flag = 0
+                        break
+            else:
+                continue
+
+        if flag == 1:
+            node.private = True
+            for item in node.pointing_to:
+                item.private = True
+                if item not in nodes_private:
+                    nodes_private.append(item)
 
         if node.private==False or (node.private==False and node.prot==False):    #step 12
             combi = []
@@ -607,10 +626,12 @@ for i in range(n):      #step 5
             if anonymous == True:   #if DB is k-anonymous step 19
                 #print "Enter, ", node.name
                 node.private = True
-                #print node.name, "is private: ", node.private
+                nodes_private.append(node)
                 for item in node.pointing_to:
-                    item.private = True         #marking all direct generalization
-                                                #as k-anonymous
+                    item.private = True         #marking all direct generalization as k-anonymous
+                    if item not in nodes_private:
+                        nodes_private.append(item)
+                                                
                 flag = 0
                 N = []
                 for item in Cpd:       #step 21(1)
@@ -619,9 +640,10 @@ for i in range(n):      #step 5
                         flag = 1
 
                 if (flag == 1) and (i <= tau):    #step 21
-                    if node.height == 0:
+                    if len(node.E) == 0:
                         MR = alpha_protection(i,node)   #step 23
                     else:
+                        print "check1: ", node.name
                         MR = alpha_protection(i,node)  #step 25
 
                     if MR == 'case3':
@@ -641,6 +663,7 @@ for i in range(n):      #step 5
                         for item in node.pointing_to:
                             if item not in queue:
                                 queue.append(item)  #insert direct gen into queue
+                                #print "Inserting: ", item.name
                         queue = sorted(queue, key=attrgetter('height'))   #sorting by height
             
             else:       #step 31-32     step 35
@@ -654,7 +677,7 @@ for i in range(n):      #step 5
                 queue = sorted(queue, key=attrgetter('height'))   #sorting by height
 
         elif node.private == True:      #step 21-36     step 38
-            #print node.name, "is private: ", node.private
+            print "Enter: ", node.name
             flag = 0
             N = []
             for item in Cpd:       #step 21(1)
@@ -662,11 +685,11 @@ for i in range(n):      #step 5
                     N.append(item)
                     flag = 1
 
-            if flag == 1 and i <= t:    #step 21
-                if node.height == 0:
+            if flag == 1 and i <= tau:    #step 21
+                if len(node.E) == 0:
                     MR = alpha_protection(i,node)   #step 23
                 else:
-                    #print "check: ", node.name
+                    print "check: ", node.name
                     MR = alpha_protection(i,node)  #step 25
 
                 if MR == 'case3':
@@ -683,16 +706,18 @@ for i in range(n):      #step 5
                         if node==item:      #delete node from Si step 31
                             S[i].remove(item)
                     for item in node.pointing_to:
-                        queue.append(item)  #insert direct gen into queue
+                        if item not in queue:
+                            queue.append(item)  #insert direct gen into queue
                     queue = sorted(queue, key=attrgetter('height'))   #sorting by height
             
-            else:
-                for item in S[i]:
-                    if node==item:      #delete node from Si step 31
-                        S[i].remove(item)
-                for item in node.pointing_to:
+        else:
+            for item in S[i]:
+                if node==item:      #delete node from Si step 31
+                    S[i].remove(item)
+            for item in node.pointing_to:
+                if item not in queue:
                     queue.append(item)  #insert direct gen into queue
-                queue = sorted(queue, key=attrgetter('height'))   #sorting by height
+            queue = sorted(queue, key=attrgetter('height'))   #sorting by height
 
     '''print "S: "
     for j in range(len(S)):
